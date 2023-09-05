@@ -5,113 +5,143 @@ import time
 pygame.init()
 
 # Constants
-width, height = 800, 400
-background_color = (135, 206, 250)
-score = 0
-game_time = 0
+WIDTH, HEIGHT = 800, 400
+BACKGROUND_COLOR = (135, 206, 250)
+FONT = pygame.font.Font('freesansbold.ttf', 32)
 
 # Initialize screen and clock
-screen = pygame.display.set_mode((width, height))
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Dino Game")
-clock = pygame.time.Clock()
+CLOCK = pygame.time.Clock()
 
-# Load images and fonts
-dino_img = pygame.image.load("dino.png")
-dino_img = pygame.transform.scale(dino_img, (120, 100))
+# Load images
+DINO_IMG = pygame.image.load("dino.png")
+DINO_IMG = pygame.transform.scale(DINO_IMG, (120, 100))
 
-cactus_img = pygame.image.load("cactus.png")
-cactus_img = pygame.transform.scale(cactus_img, (64, 64))
+CACTUS_IMG = pygame.image.load("cactus.png")
+CACTUS_IMG = pygame.transform.scale(CACTUS_IMG, (64, 64))
 
-font = pygame.font.Font('freesansbold.ttf', 32)
+# Class for the Dinosaur
+class Dino:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+        self.init_y = y
+        self.velocity = 0
+        self.jumping = False
 
-# Initialize variables
-dino_x, dino_y, dino_init_y = 50, height - 100, height - 100
-dino_velocity = 0
+    def jump(self):
+        if not self.jumping:
+            self.jumping = True
+            self.velocity = -30  # initial velocity for jump
 
-cactus_x, cactus_y = 800, height - 64
-cactus_velocity = 7
+    def move(self):
+        if self.jumping:
+            self.y += self.velocity
+            self.velocity += 1
+            if self.y >= self.init_y:
+                self.y = self.init_y
+                self.jumping = False
 
-start_ticks = None
-running = False
-jumping = False
-button_show = True
+    def draw(self):
+        SCREEN.blit(DINO_IMG, (self.x, self.y))
 
-# Button dimensions
-button_width, button_height = 120, 40
+# Class for the Cactus
+class Cactus:
+    def __init__(self, x, y, velocity):
+        self.x, self.y = x, y
+        self.velocity = velocity
 
-while True:
-    screen.fill(background_color)
+    def move(self):
+        self.x -= self.velocity
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+    def reset_position(self):
+        self.x = WIDTH
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            x, y = pygame.mouse.get_pos()
-            
-            if button_show:
-                if x > width // 2 - button_width // 2 and x < width // 2 + button_width // 2 and y > height // 2 - button_height and y < height // 2:
-                    # Reset the game
-                    running = True
-                    score = 0
-                    game_time = 0
-                    cactus_x = 800
-                    start_ticks = pygame.time.get_ticks()
-                    button_show = False
+    def draw(self):
+        SCREEN.blit(CACTUS_IMG, (self.x, self.y))
 
-                if x > width // 2 - button_width // 2 and x < width // 2 + button_width // 2 and y > height // 2 + button_height and y < height // 2 + 2 * button_height:
-                    running = False
-                    button_show = True
-                    
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not jumping:
-                jumping = True
-                dino_velocity = -30  # Double the initial velocity for higher jump
+def draw_button(text, x, y, w, h):
+    pygame.draw.rect(SCREEN, (0, 128, 0), (x, y, w, h))
+    btn_text = FONT.render(text, True, (255, 255, 255))
+    text_rect = btn_text.get_rect(center=(x + w // 2, y + h // 2))
+    SCREEN.blit(btn_text, text_rect.topleft)
 
-    if running:
-        game_time = (pygame.time.get_ticks() - start_ticks) // 1000
+# Main game loop
+def game_loop():
+    # Initialize game variables
+    dino = Dino(50, HEIGHT - 100)
+    cactus = Cactus(800, HEIGHT - 64, 7)
 
-        cactus_x -= cactus_velocity
+    score = 0
+    high_score = 0
 
-        if jumping:
-            dino_y += dino_velocity
-            dino_velocity += 1
+    # Load high score from file
+    try:
+        with open('high_score.txt', 'r') as f:
+            high_score = int(f.read())
+    except FileNotFoundError:
+        pass
 
-            if dino_y >= dino_init_y:
-                dino_y = dino_init_y
-                jumping = False
+    game_time = 0
+    running = False
+    start_ticks = None
 
-        if cactus_x < -80:
-            cactus_x = width
-            score += 1
+    while True:
+        SCREEN.fill(BACKGROUND_COLOR)
 
-        if abs(dino_x - cactus_x) < 70 and abs(dino_y - cactus_y) < 70:
-            running = False
-            button_show = True
-            dino_y = dino_init_y  # Reset dino position
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
 
-    screen.blit(dino_img, (dino_x, dino_y))
-    screen.blit(cactus_img, (cactus_x, cactus_y))
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = pygame.mouse.get_pos()
+                if x > WIDTH // 2 - 60 and x < WIDTH // 2 + 60 and y > HEIGHT // 2 - 20 and y < HEIGHT // 2 + 20:
+                    if not running:
+                        running = True
+                        start_ticks = pygame.time.get_ticks()
+                        cactus.reset_position()
 
-    if running:
-        score_text = font.render(f'Score: {score} x', True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    dino.jump()
 
-        time_text = font.render(f'Time: {game_time}s', True, (255, 255, 255))
-        screen.blit(time_text, (10, 40))
+        if running:
+            game_time = (pygame.time.get_ticks() - start_ticks) // 1000
+            cactus.move()
+            dino.move()
 
-    if button_show:
-        pygame.draw.rect(screen, (0, 128, 0), (width // 2 - button_width // 2, height // 2 - button_height, button_width, button_height))
-        pygame.draw.rect(screen, (128, 0, 0), (width // 2 - button_width // 2, height // 2 + button_height, button_width, button_height))
+            if cactus.x < -80:
+                cactus.reset_position()
+                score += 1
 
-        start_text = font.render('Start', True, (255, 255, 255))
-        start_text_rect = start_text.get_rect(center=(width // 2, height // 2 - button_height // 2))
-        screen.blit(start_text, start_text_rect.topleft)
+            if abs(dino.x - cactus.x) < 70 and abs(dino.y - cactus.y) < 70:
+                running = False
+                if score > high_score:
+                    high_score = score
+                    with open('high_score.txt', 'w') as f:
+                        f.write(str(high_score))
 
-        finish_text = font.render('Finish', True, (255, 255, 255))
-        finish_text_rect = finish_text.get_rect(center=(width // 2, height // 2 + button_height + button_height // 2))
-        screen.blit(finish_text, finish_text_rect.topleft)
+        # Draw elements
+        dino.draw()
+        cactus.draw()
 
-    pygame.display.update()
-    clock.tick(60)
+        # Draw score and time
+        score_text = FONT.render(f'Score: {score} x', True, (255, 255, 255))
+        SCREEN.blit(score_text, (10, 10))
+        time_text = FONT.render(f'Time: {game_time}s', True, (255, 255, 255))
+        SCREEN.blit(time_text, (10, 40))
+
+        # Draw high score
+        high_score_text = FONT.render(f'High Score: {high_score}', True, (255, 255, 255))
+        SCREEN.blit(high_score_text, (WIDTH - 225, 10))
+
+        # Draw Start button
+        if not running:
+            draw_button('Start', WIDTH // 2 - 60, HEIGHT // 2 - 20, 120, 40)
+
+        pygame.display.update()
+        CLOCK.tick(60)
+
+# Start the game loop
+game_loop()
