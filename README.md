@@ -1,12 +1,14 @@
 # Python Chrome Dino Game
 
-Dino Game is a simple but fun game developed in Python using the Pygame library. It is inspired by the famous Chrome Dino game that you can play when you're offline. Your aim is to control a dinosaur and dodge incoming cactus to earn points.
+## Overview
 
-# Code Walkthrough
+Dino Game is a simple but fun game developed in Python using the Pygame library. It is inspired by the famous Chrome Dino game that you can play when you're offline. Your aim is to control a dinosaur and dodge an incoming cactus to earn points.
+
+## Code Walkthrough
 
 The Dino Game is built in Python using the Pygame library. The source code is structured in a simple and straightforward manner to make it easy to understand and extend.
 
-## File Structure
+### File Structure
 
 ```plaintext
 Dino-Game/
@@ -16,7 +18,7 @@ Dino-Game/
 |-- high_score.txt (generated at runtime)
 ```
 
-## Imports and Initialization
+### Imports and Initialization
 
 We begin by importing the necessary modules and initializing Pygame. The screen and clock are set up, and images are loaded into memory.
 
@@ -34,7 +36,7 @@ DINO_IMG = pygame.image.load("dino.png")
 CACTUS_IMG = pygame.image.load("cactus.png")
 ```
 
-## Dino Class
+### Dino Class
 
 The Dino class is responsible for all dinosaur-related logic. It handles the dinosaur's position, drawing it on the screen, and the jump action.
 
@@ -50,7 +52,7 @@ class Dino:
         # draw code
 ```
 
-## Cactus Class
+### Cactus Class
 
 Similarly, the Cactus class deals with the cactus' logic. It takes care of the position, velocity, and drawing of the cactus.
 
@@ -66,7 +68,7 @@ class Cactus:
         # draw code
 ```
 
-## Main Game Loop
+### Main Game Loop
 
 The game loop is where all the magic happens. We handle events, update game states, and redraw elements in this loop.
 
@@ -81,7 +83,7 @@ def game_loop():
         # ... drawing elements
 ```
 
-## Utilities
+### Utilities
 
 Utility functions are also defined for reusable operations like drawing buttons and displaying text.
 
@@ -90,7 +92,7 @@ def draw_button(text, x, y, w, h):
     # ... draw button code
 ```
 
-## High Score
+### High Score
 
 The game also includes a high score feature that saves and loads the highest score from a text file.
 
