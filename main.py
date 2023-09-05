@@ -16,15 +16,15 @@ pygame.display.set_caption("Dino Game")
 icon = pygame.Surface((10, 10))  # Create a dummy surface for the icon
 pygame.display.set_icon(icon)
 
-# Dino
-dino_img = pygame.Surface((50, 50))
-dino_img.fill((0, 128, 0))
+# Load and scale Dino image
+dino_img = pygame.image.load("dino.png")
+dino_img = pygame.transform.scale(dino_img, (50, 50))
 dino_x, dino_y = 50, height - 50
 dino_velocity = 0
 
-# Cactus
-cactus_img = pygame.Surface((50, 50))
-cactus_img.fill((128, 0, 0))
+# Load and scale Cactus image
+cactus_img = pygame.image.load("cactus.png")
+cactus_img = pygame.transform.scale(cactus_img, (50, 50))
 cactus_x, cactus_y = 800, height - 50
 cactus_velocity = 10
 
