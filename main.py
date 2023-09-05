@@ -1,3 +1,6 @@
+# Install the "pygame" library first
+# pip install pygame
+
 import pygame
 import random
 
